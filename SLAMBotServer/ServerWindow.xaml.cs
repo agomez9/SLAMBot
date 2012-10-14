@@ -25,6 +25,7 @@ namespace SLAMBotServer
 
         TCPSlamServer tcpServer;
         ArduinoSlam arduino;
+        bool userDisconnect = false;
 
         #endregion
 
@@ -39,7 +40,13 @@ namespace SLAMBotServer
 
         #region Private Methods
 
-
+        private void SendArduinoStatus()
+        {
+            if (tcpServer != null && tcpServer.Status == TCPSlamServer.ServerStatus.Connected)
+            {
+                tcpServer.SendData(TCPSlamBase.MessageType.ArduinoStatus, new byte[] { (byte)arduino.Status });
+            }
+        }
 
         #endregion
 
@@ -54,6 +61,7 @@ namespace SLAMBotServer
             tcpServer = new TCPSlamServer();
             tcpServer.Port = 9988;
             tcpServer.OnConnectionStatusChanged += new EventHandler<TCPSlamServer.ServerStatusArgs>(tcpServer_OnConnectionStatusChanged);
+            tcpServer.OnDataReceived += new EventHandler<TCPSlamBase.MessageArgs>(tcpServer_OnDataReceived);
             txtIP.Text = Common.GetIP();
             try
             {
@@ -66,8 +74,20 @@ namespace SLAMBotServer
             }
         }
 
+        void tcpServer_OnDataReceived(object sender, TCPSlamBase.MessageArgs e)
+        {
+            if (e.MessageType == TCPSlamBase.MessageType.ArduinoConnection)
+            {
+                if (BitConverter.ToBoolean(e.Message, 0))
+                    arduino.Connect();
+                else
+                    arduino.CloseConnection();
+            }
+        }
+
         void arduino_OnStatusChanged(object sender, ArduinoSlam.StatusArgs e)
         {
+            SendArduinoStatus();
             if (e.Status == ArduinoSlam.ArduinoStatus.Connected)
             {
                 lblArduinoStatus.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { lblArduinoStatus.Content = "Connected"; }));
@@ -86,24 +106,32 @@ namespace SLAMBotServer
         }
 
         void tcpServer_OnConnectionStatusChanged(object sender, TCPSlamServer.ServerStatusArgs e)
-        {
+        {            
             if (e.Status == TCPSlamServer.ServerStatus.Connected)
             {
                 txtIP.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { txtIP.IsEnabled = false; }));
                 btnListen.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { btnListen.Content = "Disconnect"; }));
                 lblStatus.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { lblStatus.Content = "Status: Connected"; }));
+                groupBandwidth.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { groupBandwidth.IsEnabled = true; }));
+                SendArduinoStatus();
             }
             else if (e.Status == TCPSlamServer.ServerStatus.Disconnected)
             {
                 txtIP.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { txtIP.IsEnabled = true; }));
                 btnListen.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { btnListen.Content = "Listen"; }));
                 lblStatus.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { lblStatus.Content = "Status: Disconnected"; }));
+                groupBandwidth.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { groupBandwidth.IsEnabled = false; }));
+                if (!userDisconnect)
+                    tcpServer.StartServer();
+                else
+                    userDisconnect = false;
             }
             else if (e.Status == TCPSlamServer.ServerStatus.Listening)
             {
                 txtIP.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { txtIP.IsEnabled = false; }));
-                btnListen.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { btnListen.Content = "Disconnect"; }));
+                btnListen.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { btnListen.Content = "Stop"; }));
                 lblStatus.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { lblStatus.Content = "Status: Listening"; }));
+                groupBandwidth.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { groupBandwidth.IsEnabled = false; }));
             }
         }
 
@@ -123,7 +151,8 @@ namespace SLAMBotServer
             }
             else
             {
-                tcpServer.CloseConnection();
+                userDisconnect = true;
+                tcpServer.CloseConnection();                
             }
         }
 

@@ -1,7 +1,7 @@
 ﻿<Window x:Class="SLAMBotClient.ClientWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="SLAM Bot Client" Height="408" Width="263" Icon="/SLAMBotClient;component/Images/robot_icon.png" ResizeMode="NoResize" Loaded="Window_Loaded">
+        Title="SLAM Bot Client" Height="510" Width="276" Icon="/SLAMBotClient;component/Images/robot_icon.png" ResizeMode="NoResize" Loaded="Window_Loaded">
     <Grid>
         <GroupBox Header="Connection" Height="113" HorizontalAlignment="Left" Margin="12,12,0,0" Name="groupBox1" VerticalAlignment="Top" Width="235">
             <Grid>
@@ -11,7 +11,7 @@
                 <Button Content="Connect" Height="23" HorizontalAlignment="Left" Margin="6,37,0,0" Name="btnConnect" VerticalAlignment="Top" Width="211" Click="btnConnect_Click" IsDefault="True" />
             </Grid>
         </GroupBox>
-        <GroupBox Header="Communication" Height="113" HorizontalAlignment="Left" Margin="12,131,0,0" Name="groupBox2" VerticalAlignment="Top" Width="235" IsEnabled="False">
+        <GroupBox Header="Communication" Height="113" HorizontalAlignment="Left" Margin="12,131,0,0" Name="groupCommunication" VerticalAlignment="Top" Width="235" IsEnabled="False">
             <Grid>
                 <Label Content="Kinect:" Height="28" HorizontalAlignment="Left" Margin="6,6,0,0" Name="label2" VerticalAlignment="Top" />
                 <ComboBox Height="23" HorizontalAlignment="Left" Margin="57,8,0,0" Name="cmbKinect" VerticalAlignment="Top" Width="160" />
@@ -19,13 +19,19 @@
                 <Button Content="Start Camera" Height="23" HorizontalAlignment="Left" Margin="6,59,0,0" Name="button1" VerticalAlignment="Top" Width="211" />
             </Grid>
         </GroupBox>
-        <GroupBox Header="Bandwidth" Height="94" HorizontalAlignment="Left" Margin="12,250,0,0" Name="groupBox3" VerticalAlignment="Top" Width="235" IsEnabled="False">
+        <GroupBox Header="Bandwidth" Height="94" HorizontalAlignment="Left" Margin="12,343,0,0" Name="groupBox3" VerticalAlignment="Top" Width="235" IsEnabled="False">
             <Grid>
                 <Label Content="Upload: 0 Mbps" Height="28" HorizontalAlignment="Left" Margin="6,6,0,0" Name="label3" VerticalAlignment="Top" />
                 <Label Content="Download: 0 Mbps" Height="28" HorizontalAlignment="Left" Margin="6,40,0,0" Name="label4" VerticalAlignment="Top" />
             </Grid>
         </GroupBox>
-        <Button Content="Help" Height="20" HorizontalAlignment="Left" Margin="183,349,0,0" Name="button2" VerticalAlignment="Top" Width="58" FontSize="11" FontWeight="Normal" />
-        <Label Content="Texas A&amp;M Corpus Christi" Height="28" HorizontalAlignment="Left" Margin="12,345,0,0" Name="label5" VerticalAlignment="Top" FontWeight="Bold" Foreground="Blue" />
+        <Button Content="Help" Height="20" HorizontalAlignment="Left" Margin="184,443,0,0" Name="button2" VerticalAlignment="Top" Width="58" FontSize="11" FontWeight="Normal" />
+        <Label Content="Texas A&amp;M Corpus Christi" Height="28" HorizontalAlignment="Left" Margin="13,439,0,0" Name="label5" VerticalAlignment="Top" FontWeight="Bold" Foreground="Blue" />
+        <GroupBox Header="Arduino" Height="85" HorizontalAlignment="Left" Margin="12,250,0,0" Name="groupArduino" VerticalAlignment="Top" Width="235" IsEnabled="False">
+            <Grid>
+                <Button Click="btnArduinoConnect_Click" Content="Connect" Height="23" HorizontalAlignment="Left" Margin="6,6,0,0" Name="btnArduinoConnect" VerticalAlignment="Top" Width="211" />
+                <Label Content="Status: Not Connected" Height="28" HorizontalAlignment="Left" Margin="6,35,0,0" Name="lblArduinoStatus" VerticalAlignment="Top" />
+            </Grid>
+        </GroupBox>
     </Grid>
 </Window>

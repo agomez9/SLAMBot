@@ -24,6 +24,7 @@ namespace SLAMBotClient
         #region Members
 
         TCPSlamClient tcpClient;
+        ArduinoSlam.ArduinoStatus ArduinoStatus = ArduinoSlam.ArduinoStatus.NotConnected;
 
         #endregion
 
@@ -36,6 +37,11 @@ namespace SLAMBotClient
 
         #endregion
 
+        #region Private Methods
+
+
+        #endregion
+
         #region Events
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -43,7 +49,31 @@ namespace SLAMBotClient
             tcpClient = new TCPSlamClient();
             tcpClient.Port = 9988;
             tcpClient.OnConnectionStatusChanged += new EventHandler<TCPSlamClient.ClientStatusArgs>(tcpClient_OnConnectionStatusChanged);
+            tcpClient.OnDataReceived += new EventHandler<TCPSlamBase.MessageArgs>(tcpClient_OnDataReceived);
             txtIP.Text = Common.GetIP();
+        }
+
+        void tcpClient_OnDataReceived(object sender, TCPSlamBase.MessageArgs e)
+        {
+            if (e.MessageType == TCPSlamBase.MessageType.ArduinoStatus)
+            {
+                ArduinoStatus = (ArduinoSlam.ArduinoStatus)e.Message[0];
+                if (ArduinoStatus == ArduinoSlam.ArduinoStatus.Connected)
+                {                    
+                    lblArduinoStatus.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { lblArduinoStatus.Content = "Connected"; }));
+                    btnArduinoConnect.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { btnArduinoConnect.Content = "Disconnect"; }));
+                }
+                else if (ArduinoStatus == ArduinoSlam.ArduinoStatus.Connecting)
+                {
+                    lblArduinoStatus.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { lblArduinoStatus.Content = "Connecting..."; }));
+                    btnArduinoConnect.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { btnArduinoConnect.Content = "Disconnect"; }));
+                }
+                else if (ArduinoStatus == ArduinoSlam.ArduinoStatus.NotConnected)
+                {
+                    lblArduinoStatus.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { lblArduinoStatus.Content = "Disconnected"; }));
+                    btnArduinoConnect.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { btnArduinoConnect.Content = "Connect"; }));
+                }
+            }
         }
 
         void tcpClient_OnConnectionStatusChanged(object sender, TCPSlamClient.ClientStatusArgs e)
@@ -53,18 +83,38 @@ namespace SLAMBotClient
                 txtIP.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { txtIP.IsEnabled = false; }));
                 btnConnect.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { btnConnect.Content = "Disconnect"; }));
                 lblStatus.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { lblStatus.Content = "Status: Connected"; }));
+                groupCommunication.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { groupCommunication.IsEnabled = true; }));
+                groupArduino.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { groupArduino.IsEnabled = true; }));
             }
             else if (e.Status == TCPSlamClient.ClientStatus.Connecting)
             {
                 txtIP.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { txtIP.IsEnabled = false; }));
                 btnConnect.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { btnConnect.Content = "Disconnect"; }));
                 lblStatus.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { lblStatus.Content = "Status: Connecting..."; }));
+                groupCommunication.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { groupCommunication.IsEnabled = false; }));
+                groupArduino.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { groupArduino.IsEnabled = false; }));
             }
             else if (e.Status == TCPSlamClient.ClientStatus.Disconnected)
             {
                 txtIP.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { txtIP.IsEnabled = true; }));
                 btnConnect.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { btnConnect.Content = "Connect"; }));
                 lblStatus.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { lblStatus.Content = "Status: Disconnected"; }));
+                groupCommunication.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { groupCommunication.IsEnabled = false; }));
+                btnArduinoConnect.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { btnArduinoConnect.Content = "Connect"; }));
+                lblArduinoStatus.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { lblArduinoStatus.Content = "Disconnected"; }));
+                groupArduino.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { groupArduino.IsEnabled = false; }));
+                ArduinoStatus = ArduinoSlam.ArduinoStatus.NotConnected;
+            }
+        }
+
+        private void btnArduinoConnect_Click(object sender, RoutedEventArgs e)
+        {
+            if (tcpClient.Status == TCPSlamClient.ClientStatus.Connected)
+            {
+                if (ArduinoStatus == ArduinoSlam.ArduinoStatus.NotConnected)
+                    tcpClient.SendData(TCPSlamBase.MessageType.ArduinoConnection, BitConverter.GetBytes(true));
+                else
+                    tcpClient.SendData(TCPSlamBase.MessageType.ArduinoConnection, BitConverter.GetBytes(false));
             }
         }
 

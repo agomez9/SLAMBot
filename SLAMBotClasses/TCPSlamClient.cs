@@ -53,6 +53,7 @@ namespace SLAMBotClasses
         {
             Status = ClientStatus.Disconnected;
             OnInternalConnectionClosed += new EventHandler(TCPSlamClient_OnInternalConnectionClosed);
+            OnInternalConnectionOpened += new EventHandler(TCPSlamClient_OnInternalConnectionOpened);
         }
 
         #endregion
@@ -84,8 +85,6 @@ namespace SLAMBotClasses
         public override void CloseConnection()
         {
             base.CloseConnection();
-            Status = ClientStatus.Disconnected;
-            base.CloseConnection();
             if (connectThread.IsAlive)
                 connectThread.Abort();            
         }
@@ -111,14 +110,12 @@ namespace SLAMBotClasses
             {
                 tcpObject.NoDelay = true;
                 tcpStream = tcpObject.GetStream();
-                Status = ClientStatus.Connected;
                 comThread = new Thread(ReceiveData);
                 comThread.Priority = ThreadPriority.Highest;
                 comThread.Start();
             }
             else
             {
-                Status = ClientStatus.Disconnected;
                 CloseConnection();
             }
         }
@@ -130,6 +127,11 @@ namespace SLAMBotClasses
         void TCPSlamClient_OnInternalConnectionClosed(object sender, EventArgs e)
         {
             Status = ClientStatus.Disconnected;
+        }
+
+        void TCPSlamClient_OnInternalConnectionOpened(object sender, EventArgs e)
+        {
+            Status = ClientStatus.Connected;
         }
 
         #endregion

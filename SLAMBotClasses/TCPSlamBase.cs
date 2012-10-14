@@ -12,7 +12,7 @@ namespace SLAMBotClasses
     {
         #region Members
 
-        public enum MessageType { CameraOneFrame, LeftMotor, RightMotor, Lights };        
+        public enum MessageType { Ping, CameraOneFrame, LeftMotor, RightMotor, Lights, ArduinoConnection, ArduinoStatus };        
         public event EventHandler<MessageArgs> OnDataReceived;
         protected Thread comThread;
         protected TcpClient tcpObject;
@@ -20,6 +20,7 @@ namespace SLAMBotClasses
         protected IPAddress _IPAddress;
         protected int _Port;
         protected event EventHandler OnInternalConnectionClosed;
+        protected event EventHandler OnInternalConnectionOpened;
         private Queue<AsyncSendMsg> sendQueue;
         private Mutex muSend;
         private DateTime LastMbpsUpCal;
@@ -154,7 +155,6 @@ namespace SLAMBotClasses
         protected void ReceiveData()
         {
             muSend = new Mutex();
-            
             sendQueue.Clear();
             LastMbpsDownCal = DateTime.Now;
             _MbpsDown = bytesReceived = 0;
@@ -169,6 +169,8 @@ namespace SLAMBotClasses
             byte[] msgSizeByteAray = new byte[4];
             byte[] msgType = new byte[1];
             byte[] fullMessage;
+            if (OnInternalConnectionOpened != null)
+                OnInternalConnectionOpened(this, EventArgs.Empty);
 
             while (tcpObject.Connected)
             {
@@ -217,6 +219,7 @@ namespace SLAMBotClasses
                         _MbpsDown = (_MbpsDown + ((double)(bytesReceived / 1024d / 1024d) / (DateTime.Now - LastMbpsDownCal).TotalSeconds)) / 2;
                         bytesReceived = 0;
                         LastMbpsDownCal = DateTime.Now;
+                        SendData(MessageType.Ping, new byte[0]);
                     }
                 }
                 catch

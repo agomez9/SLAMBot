@@ -11,7 +11,7 @@
                 <Button Click="btnConnect_Click" Content="Listen" Height="23" HorizontalAlignment="Left" IsDefault="True" Margin="6,37,0,0" Name="btnListen" VerticalAlignment="Top" Width="211" />
             </Grid>
         </GroupBox>
-        <GroupBox Header="Bandwidth" Height="94" HorizontalAlignment="Left" IsEnabled="False" Margin="12,131,0,0" Name="groupBox3" VerticalAlignment="Top" Width="235">
+        <GroupBox Header="Bandwidth" Height="94" HorizontalAlignment="Left" IsEnabled="False" Margin="12,131,0,0" Name="groupBandwidth" VerticalAlignment="Top" Width="235">
             <Grid>
                 <Label Content="Upload: 0 Mbps" Height="28" HorizontalAlignment="Left" Margin="6,6,0,0" Name="label3" VerticalAlignment="Top" />
                 <Label Content="Download: 0 Mbps" Height="28" HorizontalAlignment="Left" Margin="6,40,0,0" Name="label4" VerticalAlignment="Top" />
