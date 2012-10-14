@@ -81,8 +81,9 @@ namespace SLAMBotClasses
             Connect();
         }
 
-        public void CloseConnection()
-        {            
+        public override void CloseConnection()
+        {
+            base.CloseConnection();
             Status = ClientStatus.Disconnected;
             base.CloseConnection();
             if (connectThread.IsAlive)

@@ -85,8 +85,9 @@ namespace SLAMBotClasses
             StartServer();
         }
 
-        public void CloseConnection()
+        public override void CloseConnection()
         {
+            base.CloseConnection();
             Status = ServerStatus.Disconnected;              
             listener.Stop();
             base.CloseConnection();

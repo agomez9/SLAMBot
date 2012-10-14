@@ -136,7 +136,7 @@ namespace SLAMBotClasses
 
         #region Protected Methods
 
-        protected void CloseConnection()
+        public virtual void CloseConnection()
         {
             if (OnInternalConnectionClosed != null)
                 OnInternalConnectionClosed(this, EventArgs.Empty);            
