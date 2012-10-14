@@ -60,8 +60,8 @@ namespace SLAMBotServer
             slamServer = new TCPSlamServer();
             slamServer.OnConnectionStatusChanged += new EventHandler<TCPSlamServer.ServerStatusArgs>(slamServer_OnConnectionStatusChanged);
             slamServer.OnDataReceived += new EventHandler<TCPSlamBase.MessageArgs>(slamServer_OnDataReceived);
-            slamKinect = new KinectSlam();
-            slamKinect.StartSensor(slamKinect.GetKinectList()[0]);
+            //slamKinect = new KinectSlam();
+            //slamKinect.StartSensor(slamKinect.GetKinectList()[0]);
             
             IP = Common.GetIP();
             lblIP.Content = "IP: " + IP;
