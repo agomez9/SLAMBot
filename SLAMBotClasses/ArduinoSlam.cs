@@ -16,6 +16,7 @@ namespace SLAMBotClasses
         private enum ArduinoCommands { Handshake, TestLight};
         public enum ArduinoStatus { Connected, NotConnected, Connecting };
         private ArduinoStatus _Status;
+        Thread cThread;
 
         #endregion
 
@@ -73,8 +74,19 @@ namespace SLAMBotClasses
 
         public void Connect()
         {
-            Thread cThread = new Thread(ThreadConnect);
+            cThread = new Thread(ThreadConnect);
             cThread.Start();
+        }
+
+        public void CloseConnection()
+        {
+            if (cThread.IsAlive)
+                cThread.Abort();
+
+            if (sp.IsOpen)
+                sp.Close();
+
+            Status = ArduinoStatus.NotConnected;
         }
 
         public void TurnTestLightOff()

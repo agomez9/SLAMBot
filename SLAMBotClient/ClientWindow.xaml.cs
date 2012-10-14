@@ -21,12 +21,22 @@ namespace SLAMBotClient
     /// </summary>
     public partial class ClientWindow : Window
     {
+        #region Members
+
         TCPSlamClient tcpClient;
+
+        #endregion
+
+        #region Constructor
 
         public ClientWindow()
         {
             InitializeComponent();
         }
+
+        #endregion
+
+        #region Events
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -65,17 +75,19 @@ namespace SLAMBotClient
                 try
                 {
                     tcpClient.IPAddress = IPAddress.Parse(txtIP.Text);
+                    tcpClient.Connect();
                 }
                 catch
                 {
                     Console.WriteLine("Invalid IP: " + txtIP.Text);
                 }
-                tcpClient.Connect();
             }
-            else if (tcpClient.Status == TCPSlamClient.ClientStatus.Connected || tcpClient.Status == TCPSlamClient.ClientStatus.Connecting)
+            else
             {
                 tcpClient.CloseConnection();
             }
         }
+
+        #endregion
     }
 }
