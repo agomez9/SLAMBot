@@ -12,7 +12,7 @@ namespace SLAMBotClasses
     {
         #region Members
 
-        public enum MessageType { Ping, CameraOneFrame, LeftMotor, RightMotor, Lights, ArduinoConnection, ArduinoStatus };        
+        public enum MessageType { Ping, KinectFrame, LeftMotor, RightMotor, Lights, ArduinoConnection, ArduinoStatus, KinectList, SendVideo, StopVideo, CameraMove };        
         public event EventHandler<MessageArgs> OnDataReceived;
         protected Thread comThread;
         protected TcpClient tcpObject;

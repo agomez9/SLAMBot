@@ -114,7 +114,7 @@ namespace SLAMBotClasses
             if (ports.Length > 0)
             {
                 foreach (string comPort in ports)
-                {
+                {                    
                     Console.Write("Connecting to : " + comPort + "... ");
                     sp.PortName = comPort;
                     sp.Open();
@@ -137,6 +137,7 @@ namespace SLAMBotClasses
                         else
                         {
                             Console.WriteLine("No Reply");
+                            sp.Close();
                         }
                     }
                 }

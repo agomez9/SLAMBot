@@ -22,12 +22,16 @@ namespace SLAMBotClasses
         private byte[] CurrentFrame;
         private Thread processFramesThread;
         private Thread processAudioThread;
+        private Thread processCameraMoveThread;
         private ColorImageFrame ImageOneRaw;
         private int CurrentFrameNumber;
         private long _FrameQuality = 15;
         private Stream audioStream;
         private bool processFrames;
         private bool processAudio;
+        private bool processCameraMove;
+        private int cameraAngle;
+        private int lastCameraAngle;
 
         #endregion
 
@@ -60,7 +64,7 @@ namespace SLAMBotClasses
 
         #endregion
 
-        #region Public Methods    
+        #region Public Methods
     
         public List<KinectSensor> GetKinectList()
         {
@@ -85,8 +89,11 @@ namespace SLAMBotClasses
         {
             StopSensor();
 
+            cameraAngle = 0;
+
             processFrames = true;
             processAudio = true;
+            processCameraMove = true;
 
             kinectSensor = sensor;
 
@@ -101,6 +108,10 @@ namespace SLAMBotClasses
 
             //processAudioThread = new Thread(ProcessAudio);
             //processAudioThread.Start();
+
+            lastCameraAngle = 0;
+            processCameraMoveThread = new Thread(ProcessCameraMove);
+            processCameraMoveThread.Start();
         }
 
         public void StopSensor()
@@ -113,6 +124,8 @@ namespace SLAMBotClasses
                     processFramesThread.Join();
                     //processAudio = false;
                     //processAudioThread.Join();
+                    processCameraMove = false;
+                    processCameraMoveThread.Join();
                     kinectSensor.ColorFrameReady -= kinectSensor_ColorFrameReady;
                     kinectSensor.Stop();
                     kinectSensor = null;
@@ -120,9 +133,37 @@ namespace SLAMBotClasses
             }
         }
 
+        public void MoveCamera(int angle)
+        {
+            cameraAngle = angle;
+        }
+
         #endregion
 
         #region Private Methods
+
+        private void ProcessCameraMove()
+        {
+            while (processCameraMove)
+            {
+                if (kinectSensor != null)
+                {
+                    if (cameraAngle != lastCameraAngle)
+                    {
+                        try
+                        {
+                            kinectSensor.ElevationAngle = cameraAngle;
+                            lastCameraAngle = cameraAngle;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                }
+                Thread.Sleep(1);
+            }
+        }
 
         private void ProcessAudio()
         {

@@ -13,6 +13,7 @@ using System.Windows.Shapes;
 using System.Net;
 using SLAMBotClasses;
 using System.Windows.Threading;
+using System.Threading;
 
 namespace SLAMBotServer
 {
@@ -25,7 +26,10 @@ namespace SLAMBotServer
 
         TCPSlamServer tcpServer;
         ArduinoSlam arduino;
+        KinectSlam kinectManager;
         bool userDisconnect = false;
+        Thread videoThread;
+        bool sendVideo = false;
 
         #endregion
 
@@ -48,6 +52,35 @@ namespace SLAMBotServer
             }
         }
 
+        private void SendKinectList()
+        {
+            if (tcpServer.Status == TCPSlamServer.ServerStatus.Connected)
+            {
+                byte count = (byte)kinectManager.GetKinectList().Count;
+                tcpServer.SendData(TCPSlamBase.MessageType.KinectList, new byte[] { count });
+            }
+        }
+
+        private void SendVideo()
+        {
+            long lastFrame = -1;
+            DateTime lastFrameSent = DateTime.Now;
+            double sendInterval = 1 / 15;
+            while (sendVideo)
+            {                                
+                int newFrame = kinectManager.GetCurrentFrameNumber();
+                if (lastFrame != newFrame && tcpServer.SendQueueSize < 20000 && (DateTime.Now - lastFrameSent).TotalSeconds >= sendInterval)
+                {                    
+                    lastFrameSent = DateTime.Now;
+                    lastFrame = newFrame;
+                    byte[] frame = kinectManager.GetCurrentFrame();
+                    if (frame != null)
+                        tcpServer.SendData(TCPSlamBase.MessageType.KinectFrame, frame);
+                }                                
+                Thread.Sleep(1);                
+            }
+        }
+
         #endregion
 
         #region Events
@@ -57,6 +90,8 @@ namespace SLAMBotServer
             arduino = new ArduinoSlam();
             arduino.OnStatusChanged += new EventHandler<ArduinoSlam.StatusArgs>(arduino_OnStatusChanged);
             arduino.Connect();
+
+            kinectManager = new KinectSlam();
 
             tcpServer = new TCPSlamServer();
             tcpServer.Port = 9988;
@@ -82,6 +117,23 @@ namespace SLAMBotServer
                     arduino.Connect();
                 else
                     arduino.CloseConnection();
+            }
+            else if (e.MessageType == TCPSlamBase.MessageType.SendVideo)
+            {
+                int kinect = e.Message[0];
+                kinectManager.StartSensor(kinectManager.GetKinectList()[0]);
+                sendVideo = true;
+                videoThread = new Thread(SendVideo);
+                videoThread.Start();
+            }
+            else if (e.MessageType == TCPSlamBase.MessageType.StopVideo)
+            {
+                sendVideo = false;
+                kinectManager.StopSensor();
+            }
+            else if (e.MessageType == TCPSlamBase.MessageType.CameraMove)
+            {
+                kinectManager.MoveCamera(BitConverter.ToInt32(e.Message, 0));
             }
         }
 
@@ -114,6 +166,7 @@ namespace SLAMBotServer
                 lblStatus.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { lblStatus.Content = "Status: Connected"; }));
                 groupBandwidth.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { groupBandwidth.IsEnabled = true; }));
                 SendArduinoStatus();
+                SendKinectList();
             }
             else if (e.Status == TCPSlamServer.ServerStatus.Disconnected)
             {
@@ -121,6 +174,7 @@ namespace SLAMBotServer
                 btnListen.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { btnListen.Content = "Listen"; }));
                 lblStatus.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { lblStatus.Content = "Status: Disconnected"; }));
                 groupBandwidth.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { groupBandwidth.IsEnabled = false; }));
+                sendVideo = false;
                 if (!userDisconnect)
                     tcpServer.StartServer();
                 else

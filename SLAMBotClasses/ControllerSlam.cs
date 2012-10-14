@@ -18,9 +18,10 @@ namespace SLAMBotClasses
         private double _RightStick;
         private double LastLeftStick;
         private double LastRightStick;
-        DateTime lastStickSend;
+        private DateTime lastStickSend;
         private LightMode _Lights;
         private LightMode LastLights;
+        private float _CameraMove;              
 
         #endregion
 
@@ -50,6 +51,14 @@ namespace SLAMBotClasses
             }
         }
 
+        public float CameraMove
+        {
+            get
+            {
+                return _CameraMove;
+            }
+        }
+
         #endregion
 
         #region Helper Classes
@@ -62,6 +71,7 @@ namespace SLAMBotClasses
             public bool RightStickChanged;
             public LightMode Lights;
             public bool LightsChanged;
+            public float CameraMove;
         }
 
         #endregion
@@ -84,6 +94,7 @@ namespace SLAMBotClasses
             _LeftStick = LastLeftStick = 0;
             _RightStick = LastRightStick = 0;
             _Lights = LastLights = LightMode.AllOff;
+            _CameraMove = 0;
             lastStickSend = DateTime.Now;
         }
 
@@ -107,6 +118,8 @@ namespace SLAMBotClasses
                         _Lights = LightMode.Blink;
                     else if (GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One).DPad.Right == ButtonState.Pressed)
                         _Lights = LightMode.Circle;
+                    
+                    _CameraMove = -GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One).Triggers.Left + GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One).Triggers.Right;
 
                     TestControls();
                 }
@@ -118,7 +131,8 @@ namespace SLAMBotClasses
         {
             bool SendLights = false;
             bool SendLeftStick = false;
-            bool SendRightStick = false;
+            bool SendRightStick = false;            
+
             if (_Lights != LastLights)
             {
                 LastLights = _Lights;
@@ -150,6 +164,7 @@ namespace SLAMBotClasses
                 args.RightStickChanged = SendRightStick;
                 args.Lights = _Lights;
                 args.LightsChanged = SendLights;
+                args.CameraMove = _CameraMove;
                 OnButtonsChanged(this, args);
             }
         }
