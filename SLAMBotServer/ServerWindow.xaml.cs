@@ -181,6 +181,7 @@ namespace SLAMBotServer
                 btnListen.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { btnListen.Content = "Listen"; }));
                 lblStatus.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { lblStatus.Content = "Status: Disconnected"; }));
                 groupBandwidth.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { groupBandwidth.IsEnabled = false; }));
+                kinectManager.StopSensor();
                 sendVideo = false;
                 if (!userDisconnect)
                     tcpServer.StartServer();

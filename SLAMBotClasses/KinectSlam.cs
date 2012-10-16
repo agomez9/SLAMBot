@@ -159,8 +159,8 @@ namespace SLAMBotClasses
                 {
                     processFrames = false;
                     processFramesThread.Join();
-                    //processAudio = false;
-                    //processAudioThread.Join();
+                    processAudio = false;
+                    processAudioThread.Join();
                     processCameraMove = false;
                     processCameraMoveThread.Join();
                     kinectSensor.ColorFrameReady -= kinectSensor_ColorFrameReady;
@@ -292,7 +292,7 @@ namespace SLAMBotClasses
         }
 
         private void ProcessAudio()
-        {
+        {            
             while(processAudio)
             {
                 MemoryStream ms = new MemoryStream();
