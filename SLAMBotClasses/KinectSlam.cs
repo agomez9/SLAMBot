@@ -18,6 +18,7 @@ namespace SLAMBotClasses
     {
         #region Members
 
+        public event EventHandler<AudioStreamArgs> OnAudioReady;
         private KinectSensor kinectSensor;
         private byte[] CurrentFrame;
         private Thread processFramesThread;
@@ -54,6 +55,19 @@ namespace SLAMBotClasses
             public ushort BlockAlign;
             public ushort BitsPerSample;
             public ushort Size;
+        }
+
+        #endregion
+
+        #region HelperClasses
+
+        public class AudioStreamArgs : EventArgs
+        {
+            public byte[] audio;
+            public AudioStreamArgs(byte[] audio)
+            {
+                this.audio = audio;
+            }
         }
 
         #endregion
@@ -129,8 +143,8 @@ namespace SLAMBotClasses
             processFramesThread = new Thread(ProcessFrames);
             processFramesThread.Start();
 
-            //processAudioThread = new Thread(ProcessAudio);
-            //processAudioThread.Start();
+            processAudioThread = new Thread(ProcessAudio);
+            processAudioThread.Start();
 
             lastCameraAngle = 0;
             processCameraMoveThread = new Thread(ProcessCameraMove);
@@ -294,7 +308,10 @@ namespace SLAMBotClasses
                 }
 
                 UpdateDataLength(ms, recordingLength);
-                byte[] test = ms.ToArray();
+
+                if (OnAudioReady != null)
+                    OnAudioReady(this, new AudioStreamArgs(ms.ToArray()));
+                
                 Thread.Sleep(1);
             }
         }

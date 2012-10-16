@@ -13,6 +13,8 @@ using System.Windows.Shapes;
 using System.Net;
 using SLAMBotClasses;
 using System.Windows.Threading;
+using System.Media;
+using System.IO;
 
 namespace SLAMBotClient
 {
@@ -22,7 +24,7 @@ namespace SLAMBotClient
     public partial class ClientWindow : Window
     {
         #region Members
-
+        
         CameraWindow cameraWindow;
         TCPSlamClient tcpClient;
         ControllerSlam controller;
@@ -47,7 +49,7 @@ namespace SLAMBotClient
         #region Events
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
+        {            
             controller = new ControllerSlam();
             controller.OnButtonsChanged += new EventHandler<ControllerSlam.ButtonArgs>(controller_OnButtonsChanged);
             tcpClient = new TCPSlamClient();
@@ -112,6 +114,11 @@ namespace SLAMBotClient
             else if (e.MessageType == TCPSlamBase.MessageType.KinectFrame)
             {
                 cameraWindow.Dispatcher.Invoke(DispatcherPriority.Send, new Action(delegate() { cameraWindow.LoadFrame(e.Message); }));
+            }
+            else if (e.MessageType == TCPSlamBase.MessageType.Audio)
+            {
+                SoundPlayer sp = new SoundPlayer(new MemoryStream(e.Message));
+                sp.Play();
             }
         }
 

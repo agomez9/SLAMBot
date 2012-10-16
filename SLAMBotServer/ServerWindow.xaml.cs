@@ -92,6 +92,7 @@ namespace SLAMBotServer
             arduino.Connect();
 
             kinectManager = new KinectSlam();
+            kinectManager.OnAudioReady += new EventHandler<KinectSlam.AudioStreamArgs>(kinectManager_OnAudioReady);
 
             tcpServer = new TCPSlamServer();
             tcpServer.Port = 9988;
@@ -107,6 +108,12 @@ namespace SLAMBotServer
             {
                 Console.WriteLine("Invalid IP: " + txtIP.Text);
             }
+        }
+
+        void kinectManager_OnAudioReady(object sender, KinectSlam.AudioStreamArgs e)
+        {
+            if (tcpServer.Status == TCPSlamServer.ServerStatus.Connected)
+                tcpServer.SendData(TCPSlamBase.MessageType.Audio, e.audio);
         }
 
         void tcpServer_OnDataReceived(object sender, TCPSlamBase.MessageArgs e)
