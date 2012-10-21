@@ -24,7 +24,7 @@ namespace SLAMBotClient
     public partial class ClientWindow : Window
     {
         #region Members
-        
+
         CameraWindow cameraWindow;
         TCPSlamClient tcpClient;
         ControllerSlam controller;
@@ -49,7 +49,7 @@ namespace SLAMBotClient
         #region Events
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
-        {            
+        {
             controller = new ControllerSlam();
             controller.OnButtonsChanged += new EventHandler<ControllerSlam.ButtonArgs>(controller_OnButtonsChanged);
             tcpClient = new TCPSlamClient();
@@ -67,16 +67,22 @@ namespace SLAMBotClient
                 {
                     if (cameraWindow != null)
                     {
-                        cameraWindow.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { cameraWindow.SetCameraAngle(e.CameraMove); }));                        
+                        cameraWindow.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { cameraWindow.SetCameraAngle(e.CameraMove); }));
                     }
-                }                    
+                }
+
+                if (e.LeftStickChanged)
+                    tcpClient.SendData(TCPSlamBase.MessageType.LeftMotor, BitConverter.GetBytes(e.LeftStick));
+
+                if (e.RightStickChanged)
+                    tcpClient.SendData(TCPSlamBase.MessageType.RightMotor, BitConverter.GetBytes(e.RightStick));
             }
         }
 
         void cameraWindow_Closed(object sender, EventArgs e)
         {
             if (tcpClient.Status == TCPSlamClient.ClientStatus.Connected)
-                tcpClient.SendData(TCPSlamBase.MessageType.StopVideo, new byte[1]);            
+                tcpClient.SendData(TCPSlamBase.MessageType.StopVideo, new byte[1]);
         }
 
         void tcpClient_OnDataReceived(object sender, TCPSlamBase.MessageArgs e)
@@ -85,7 +91,7 @@ namespace SLAMBotClient
             {
                 ArduinoStatus = (ArduinoSlam.ArduinoStatus)e.Message[0];
                 if (ArduinoStatus == ArduinoSlam.ArduinoStatus.Connected)
-                {                    
+                {
                     lblArduinoStatus.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { lblArduinoStatus.Content = "Connected"; }));
                     btnArduinoConnect.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { btnArduinoConnect.Content = "Disconnect"; }));
                 }
@@ -101,15 +107,16 @@ namespace SLAMBotClient
                 }
             }
             else if (e.MessageType == TCPSlamBase.MessageType.KinectList)
-            {                
+            {
                 byte count = e.Message[0];
-                cmbKinect.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() {
+                cmbKinect.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate()
+                {
                     cmbKinect.Items.Clear();
                     for (byte i = 1; i <= count; i++)
                         cmbKinect.Items.Add(new ComboBoxItem() { Content = "Kinect " + i });
                     if (count > 0)
-                        cmbKinect.SelectedIndex = 0;                                       
-                }));                              
+                        cmbKinect.SelectedIndex = 0;
+                }));
             }
             else if (e.MessageType == TCPSlamBase.MessageType.KinectFrame)
             {
@@ -214,6 +221,7 @@ namespace SLAMBotClient
                 tcpClient.SendData(TCPSlamBase.MessageType.CameraMove, BitConverter.GetBytes(cameraWindow.CameraAngle));
         }
 
-        #endregion        
+        #endregion
     }
 }
+

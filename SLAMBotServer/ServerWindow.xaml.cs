@@ -67,17 +67,17 @@ namespace SLAMBotServer
             DateTime lastFrameSent = DateTime.Now;
             double sendInterval = 1 / 15;
             while (sendVideo)
-            {                                
+            {
                 int newFrame = kinectManager.GetCurrentFrameNumber();
                 if (lastFrame != newFrame && tcpServer.SendQueueSize < 20000 && (DateTime.Now - lastFrameSent).TotalSeconds >= sendInterval)
-                {                    
+                {
                     lastFrameSent = DateTime.Now;
                     lastFrame = newFrame;
                     byte[] frame = kinectManager.GetCurrentFrame();
                     if (frame != null)
                         tcpServer.SendData(TCPSlamBase.MessageType.KinectFrame, frame);
-                }                                
-                Thread.Sleep(1);                
+                }
+                Thread.Sleep(1);
             }
         }
 
@@ -142,6 +142,16 @@ namespace SLAMBotServer
             {
                 kinectManager.MoveCamera(BitConverter.ToInt32(e.Message, 0));
             }
+            else if (e.MessageType == TCPSlamBase.MessageType.LeftMotor)
+            {
+                if (arduino.Status == ArduinoSlam.ArduinoStatus.Connected)
+                    arduino.SetLeftMotor(BitConverter.ToDouble(e.Message, 0));
+            }
+            else if (e.MessageType == TCPSlamBase.MessageType.RightMotor)
+            {
+                if (arduino.Status == ArduinoSlam.ArduinoStatus.Connected)
+                    arduino.SetRightMotor(BitConverter.ToDouble(e.Message, 0));
+            }
         }
 
         void arduino_OnStatusChanged(object sender, ArduinoSlam.StatusArgs e)
@@ -165,7 +175,7 @@ namespace SLAMBotServer
         }
 
         void tcpServer_OnConnectionStatusChanged(object sender, TCPSlamServer.ServerStatusArgs e)
-        {            
+        {
             if (e.Status == TCPSlamServer.ServerStatus.Connected)
             {
                 txtIP.Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() { txtIP.IsEnabled = false; }));
@@ -214,7 +224,7 @@ namespace SLAMBotServer
             else
             {
                 userDisconnect = true;
-                tcpServer.CloseConnection();                
+                tcpServer.CloseConnection();
             }
         }
 
@@ -233,3 +243,4 @@ namespace SLAMBotServer
         #endregion
     }
 }
+

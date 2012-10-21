@@ -13,10 +13,16 @@ namespace SLAMBotClasses
 
         private SerialPort sp;
         private bool gotHandShakeBack;
-        private enum ArduinoCommands { Handshake, TestLight};
+        private enum ArduinoCommands { Handshake, TestLight, LeftMotor, RightMotor };
         public enum ArduinoStatus { Connected, NotConnected, Connecting };
         private ArduinoStatus _Status;
         Thread cThread;
+        Thread smoothMotorThread;
+        Mutex muMotor;
+        private double leftMotorValue;
+        private double rightMotorValue;
+        private double realLeftMotorValue;
+        private double realRightMotorValue;
 
         #endregion
 
@@ -45,8 +51,8 @@ namespace SLAMBotClasses
         public ArduinoStatus Status
         {
             get { return _Status; }
-            private set 
-            { 
+            private set
+            {
                 _Status = value;
                 if (OnStatusChanged != null)
                     OnStatusChanged(this, new StatusArgs(_Status));
@@ -99,12 +105,101 @@ namespace SLAMBotClasses
             SendData(ArduinoCommands.TestLight, 1);
         }
 
+        public void SetLeftMotor(double value)
+        {
+            muMotor.WaitOne();
+            leftMotorValue = value;
+            muMotor.ReleaseMutex();
+        }
+
+        public void SetRightMotor(double value)
+        {
+            muMotor.WaitOne();
+            rightMotorValue = value;
+            muMotor.ReleaseMutex();
+        }
+
         #endregion
 
         #region Private Methods
 
+        private void ThreadSmoothMotors()
+        {
+            muMotor = new Mutex();
+
+            while (Status == ArduinoStatus.Connected)
+            {
+                muMotor.WaitOne();
+                if (realLeftMotorValue != leftMotorValue)
+                {
+                    //if the real motor value is too high
+                    if (leftMotorValue - realLeftMotorValue < 0)
+                    {
+                        //if your off my only 0.1 just set the realMotor to the motor
+                        if (leftMotorValue - realLeftMotorValue > -0.1)
+                            realLeftMotorValue = leftMotorValue;
+                        else
+                            realLeftMotorValue -= 0.1;
+                    }
+                    //if the real motor value is too low
+                    else if (leftMotorValue - realLeftMotorValue > 0)
+                    {
+                        //if your off my only 0.1 just set the realMotor to the motor
+                        if (leftMotorValue - realLeftMotorValue < 0.1)
+                            realLeftMotorValue = leftMotorValue;
+                        else
+                            realLeftMotorValue += 0.1;
+                    }
+                }
+
+                if (realRightMotorValue != rightMotorValue)
+                {
+                    //if the real motor value is too high
+                    if (rightMotorValue - realRightMotorValue < 0)
+                    {
+                        //if your off my only 0.1 just set the realMotor to the motor
+                        if (rightMotorValue - realRightMotorValue > -0.1)
+                            realRightMotorValue = rightMotorValue;
+                        else
+                            realRightMotorValue -= 0.1;
+                    }
+                    //if the real motor value is too low
+                    else if (rightMotorValue - realRightMotorValue > 0)
+                    {
+                        //if your off my only 0.1 just set the realMotor to the motor
+                        if (rightMotorValue - realRightMotorValue < 0.1)
+                            realRightMotorValue = rightMotorValue;
+                        else
+                            realRightMotorValue += 0.1;
+                    }
+                }
+
+                muMotor.ReleaseMutex();
+
+                double leftMotorSpeed = (64 + (64 * realLeftMotorValue));
+                if (leftMotorSpeed < 1)
+                    leftMotorSpeed = 1;
+                else if (leftMotorSpeed > 127)
+                    leftMotorSpeed = 127;
+                SendData(ArduinoCommands.LeftMotor, (byte)leftMotorSpeed);
+
+                Thread.Sleep(1);
+
+                double rightMotorSpeed = (192 + (64 * realRightMotorValue));
+                if (rightMotorSpeed < 128)
+                    rightMotorSpeed = 128;
+                else if (rightMotorSpeed > 255)
+                    rightMotorSpeed = 255;
+                SendData(ArduinoCommands.RightMotor, (byte)rightMotorSpeed);
+
+                Thread.Sleep(100);
+            }
+        }
+
         private void ThreadConnect()
         {
+            leftMotorValue = rightMotorValue = realLeftMotorValue = realRightMotorValue = 0;
+
             Status = ArduinoStatus.Connecting;
             if (sp.IsOpen)
                 sp.Close();
@@ -114,7 +209,7 @@ namespace SLAMBotClasses
             if (ports.Length > 0)
             {
                 foreach (string comPort in ports)
-                {                    
+                {
                     Console.Write("Connecting to : " + comPort + "... ");
                     sp.PortName = comPort;
                     sp.Open();
@@ -132,6 +227,8 @@ namespace SLAMBotClasses
                         {
                             Console.WriteLine("Got Reply");
                             Status = ArduinoStatus.Connected;
+                            smoothMotorThread = new Thread(ThreadSmoothMotors);
+                            smoothMotorThread.Start();
                             return;
                         }
                         else
@@ -178,3 +275,4 @@ namespace SLAMBotClasses
         #endregion
     }
 }
+
