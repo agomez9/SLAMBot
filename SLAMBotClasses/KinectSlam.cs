@@ -144,7 +144,7 @@ namespace SLAMBotClasses
             processFramesThread.Start();
 
             processAudioThread = new Thread(ProcessAudio);
-            processAudioThread.Start();
+            //processAudioThread.Start();
 
             lastCameraAngle = 0;
             processCameraMoveThread = new Thread(ProcessCameraMove);
