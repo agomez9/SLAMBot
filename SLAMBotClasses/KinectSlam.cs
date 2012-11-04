@@ -160,7 +160,7 @@ namespace SLAMBotClasses
                     processFrames = false;
                     processFramesThread.Join();
                     processAudio = false;
-                    processAudioThread.Join();
+                    //processAudioThread.Join();
                     processCameraMove = false;
                     processCameraMoveThread.Join();
                     kinectSensor.ColorFrameReady -= kinectSensor_ColorFrameReady;

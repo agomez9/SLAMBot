@@ -127,6 +127,26 @@ namespace SLAMBotClient
                 SoundPlayer sp = new SoundPlayer(new MemoryStream(e.Message));
                 sp.Play();
             }
+            else if (e.MessageType == TCPSlamBase.MessageType.XForce)
+            {
+                if (cameraWindow != null)
+                    cameraWindow.XForce = BitConverter.ToDouble(e.Message, 0);
+            }
+            else if (e.MessageType == TCPSlamBase.MessageType.YForce)
+            {
+                if (cameraWindow != null)
+                    cameraWindow.YForce = BitConverter.ToDouble(e.Message, 0);
+            }
+            else if (e.MessageType == TCPSlamBase.MessageType.ZForce)
+            {
+                if (cameraWindow != null)
+                    cameraWindow.ZForce = BitConverter.ToDouble(e.Message, 0);
+            }
+            else if (e.MessageType == TCPSlamBase.MessageType.Temperature)
+            {
+                if (cameraWindow != null)
+                    cameraWindow.Temperature = BitConverter.ToDouble(e.Message, 0);
+            }
         }
 
         void tcpClient_OnConnectionStatusChanged(object sender, TCPSlamClient.ClientStatusArgs e)

@@ -89,6 +89,7 @@ namespace SLAMBotServer
         {
             arduino = new ArduinoSlam();
             arduino.OnStatusChanged += new EventHandler<ArduinoSlam.StatusArgs>(arduino_OnStatusChanged);
+            arduino.OnSensorInfoReady += new EventHandler<ArduinoSlam.SensorInfoArgs>(arduino_OnSensorInfoReady);
             arduino.Connect();
 
             kinectManager = new KinectSlam();
@@ -107,6 +108,17 @@ namespace SLAMBotServer
             catch
             {
                 Console.WriteLine("Invalid IP: " + txtIP.Text);
+            }
+        }
+
+        void arduino_OnSensorInfoReady(object sender, ArduinoSlam.SensorInfoArgs e)
+        {
+            if (tcpServer.Status == TCPSlamServer.ServerStatus.Connected)
+            {
+                tcpServer.SendData(TCPSlamBase.MessageType.XForce, BitConverter.GetBytes(e.XForce));
+                tcpServer.SendData(TCPSlamBase.MessageType.YForce, BitConverter.GetBytes(e.YForce));
+                tcpServer.SendData(TCPSlamBase.MessageType.ZForce, BitConverter.GetBytes(e.ZForce));
+                tcpServer.SendData(TCPSlamBase.MessageType.Temperature, BitConverter.GetBytes(e.Temperature));
             }
         }
 

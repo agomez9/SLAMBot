@@ -13,7 +13,7 @@ namespace SLAMBotClasses
 
         private SerialPort sp;
         private bool gotHandShakeBack;
-        private enum ArduinoCommands { Handshake, TestLight, LeftMotor, RightMotor };
+        private enum ArduinoCommands { Handshake, TestLight, LeftMotor, RightMotor, XForce, YForce, ZForce, Temp, SendInfo };
         public enum ArduinoStatus { Connected, NotConnected, Connecting };
         private ArduinoStatus _Status;
         Thread cThread;
@@ -23,6 +23,7 @@ namespace SLAMBotClasses
         private double rightMotorValue;
         private double realLeftMotorValue;
         private double realRightMotorValue;
+        private double xForce, yForce, zForce, temperature;
 
         #endregion
 
@@ -42,7 +43,22 @@ namespace SLAMBotClasses
                 _Status = Status;
             }
         }
+
+        public class SensorInfoArgs : EventArgs
+        {
+            public double XForce, YForce, ZForce, Temperature;
+
+            public SensorInfoArgs (double XForce, double YForce, double ZForce, double Temperature)
+            {
+                this.XForce = XForce;
+                this.YForce = YForce;
+                this.ZForce = ZForce;
+                this.Temperature = Temperature;
+            }
+        }
+
         public event EventHandler<StatusArgs> OnStatusChanged;
+        public event EventHandler<SensorInfoArgs> OnSensorInfoReady;
 
         #endregion
 
@@ -105,6 +121,11 @@ namespace SLAMBotClasses
             SendData(ArduinoCommands.TestLight, 1);
         }
 
+        public void SendGForceAndTemp(bool OffOrOn)
+        {
+            SendData(ArduinoCommands.SendInfo, OffOrOn ? (byte)1 : (byte)0);
+        }
+
         public void SetLeftMotor(double value)
         {
             muMotor.WaitOne();
@@ -150,6 +171,13 @@ namespace SLAMBotClasses
                         else
                             realLeftMotorValue += 0.1;
                     }
+
+                    double leftMotorSpeed = (64 + (64 * realLeftMotorValue));
+                    if (leftMotorSpeed < 1)
+                        leftMotorSpeed = 1;
+                    else if (leftMotorSpeed > 127)
+                        leftMotorSpeed = 127;
+                    SendData(ArduinoCommands.LeftMotor, (byte)leftMotorSpeed);
                 }
 
                 if (realRightMotorValue != rightMotorValue)
@@ -172,25 +200,16 @@ namespace SLAMBotClasses
                         else
                             realRightMotorValue += 0.1;
                     }
+
+                    double rightMotorSpeed = (192 + (64 * realRightMotorValue));
+                    if (rightMotorSpeed < 128)
+                        rightMotorSpeed = 128;
+                    else if (rightMotorSpeed > 255)
+                        rightMotorSpeed = 255;
+                    SendData(ArduinoCommands.RightMotor, (byte)rightMotorSpeed);
                 }
 
                 muMotor.ReleaseMutex();
-
-                double leftMotorSpeed = (64 + (64 * realLeftMotorValue));
-                if (leftMotorSpeed < 1)
-                    leftMotorSpeed = 1;
-                else if (leftMotorSpeed > 127)
-                    leftMotorSpeed = 127;
-                SendData(ArduinoCommands.LeftMotor, (byte)leftMotorSpeed);
-
-                Thread.Sleep(1);
-
-                double rightMotorSpeed = (192 + (64 * realRightMotorValue));
-                if (rightMotorSpeed < 128)
-                    rightMotorSpeed = 128;
-                else if (rightMotorSpeed > 255)
-                    rightMotorSpeed = 255;
-                SendData(ArduinoCommands.RightMotor, (byte)rightMotorSpeed);
 
                 Thread.Sleep(100);
             }
@@ -229,6 +248,7 @@ namespace SLAMBotClasses
                             Status = ArduinoStatus.Connected;
                             smoothMotorThread = new Thread(ThreadSmoothMotors);
                             smoothMotorThread.Start();
+                            SendGForceAndTemp(true);
                             return;
                         }
                         else
@@ -269,6 +289,41 @@ namespace SLAMBotClasses
             {
                 if (sp.ReadByte() == 1)
                     gotHandShakeBack = true;
+            }
+            else if (command == ArduinoCommands.XForce)
+            {
+                double x = sp.ReadByte();
+                x -= 128;
+                double ratio = 1201d / 255d;
+                x *= ratio;
+                x /= 100d;                
+                xForce = x;
+            }
+            else if (command == ArduinoCommands.YForce)
+            {
+                double y = sp.ReadByte();
+                y -= 128;
+                double ratio = 1201d / 255d;
+                y *= ratio;
+                y /= 100d;               
+                yForce = y;
+            }
+            else if (command == ArduinoCommands.ZForce)
+            {
+                double z = sp.ReadByte();
+                z -= 128;
+                double ratio = 1201d / 255d;
+                z *= ratio;
+                z /= 100d; 
+                zForce = z;
+            }
+            else if (command == ArduinoCommands.Temp)
+            {
+                double temp = sp.ReadByte() - 50;
+                double tempOut = (temp * (9d / 5d)) + 32;
+                temperature = tempOut;
+                if (OnSensorInfoReady != null)
+                    OnSensorInfoReady(this, new SensorInfoArgs(xForce, yForce, zForce, temperature));
             }
         }
 

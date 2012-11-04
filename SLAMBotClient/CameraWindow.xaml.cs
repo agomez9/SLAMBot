@@ -23,6 +23,10 @@ namespace SLAMBotClient
     {
         #region Members
 
+        public double XForce;
+        public double YForce;
+        public double ZForce;
+        public double Temperature;
         public event EventHandler AngleUpdated;
         CameraAngle cameraAngleControl;
 
