@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SLAMBotClasses</name>
+    </assembly>
+    <members>
+        <member name="M:SLAMBotClasses.KinectSlam.#ctor">
+            <summary>
+            Use the /// on each method and property, or atleast the public ones
+            </summary>
+        </member>
+        <member name="M:SLAMBotClasses.KinectSlam.WriteWavHeader(System.IO.Stream)">
+            <summary>
+            A bare bones WAV file header writer
+            </summary>        
+        </member>
+        <member name="T:SLAMBotClasses.ArduinoSlam">
+            <summary>
+            This class allow you to communicate with the Arduino micro-controller (the blue microchip)
+            this will let you control all the electronics on the robot.
+            </summary>
+        </member>
+        <member name="M:SLAMBotClasses.ArduinoSlam.#ctor">
+            <summary>
+            Inits the ArduinoSlam class
+            </summary>
+        </member>
+        <member name="M:SLAMBotClasses.ArduinoSlam.Connect">
+            <summary>
+            This will connect your computer to the arduino micro-controller which
+            will allow the two to communicate. This will scan all the COM ports on
+            your computer and automatically find the Arduino. This method is asynchronous
+            so you can call it and wait for the OnStatusChanged event to tell you it's connected.
+            </summary>
+        </member>
+        <member name="M:SLAMBotClasses.ArduinoSlam.CloseConnection">
+            <summary>
+            If you are connected to the Arduino this will close the connection. You should
+            do this before exiting the program but it's not a big deal if you don't.
+            </summary>
+        </member>
+        <member name="M:SLAMBotClasses.ArduinoSlam.TurnTestLightOff">
+            <summary>
+            There is a very small LED on the arduino near pin 13, this turns it off.
+            </summary>
+        </member>
+        <member name="M:SLAMBotClasses.ArduinoSlam.TurnTestLightOn">
+            <summary>
+            There is a very small LED on the arduino near pin 13, this turns it on.
+            </summary>
+        </member>
+        <member name="M:SLAMBotClasses.ArduinoSlam.SendGForceAndTemp(System.Boolean)">
+            <summary>
+            This will tell the arduino that you want to have it start or stop sending you
+            information about the accelerometer and temperature sensor. This information
+            will be sent to you through the OnSensorInfoReady event and will fire about
+            every 200 milliseconds.
+            </summary>
+            <param name="OffOrOn"></param>
+        </member>
+        <member name="M:SLAMBotClasses.ArduinoSlam.SetLeftMotor(System.Double)">
+            <summary>
+            Sets the speed of the left side of the robot
+            </summary>
+            <param name="value">Can be between -1 and 1. -1 is full speed backwards 1 is full speed forward.</param>
+        </member>
+        <member name="M:SLAMBotClasses.ArduinoSlam.SetRightMotor(System.Double)">
+            <summary>
+            Sets the speed of the right side of the robot
+            </summary>
+            <param name="value">Can be between -1 and 1. -1 is full speed backwards 1 is full speed forward.</param>
+        </member>
+        <member name="E:SLAMBotClasses.ArduinoSlam.OnStatusChanged">
+            <summary>
+            Fires when the status of the Arduino micro-controller has changed.
+            Lets you know if it is connecting, connected or disconnected.
+            </summary>
+        </member>
+        <member name="E:SLAMBotClasses.ArduinoSlam.OnSensorInfoReady">
+            <summary>
+            Fires when the Arduino has sent you information. This is for
+            reading the accelerometer or temperature sensor.
+            </summary>
+        </member>
+        <member name="P:SLAMBotClasses.ArduinoSlam.Status">
+            <summary>
+            Gets the status of the arduino. Connected, connecting or disconnected.
+            </summary>
+        </member>
+        <member name="T:SLAMBotClasses.ArduinoSlam.StatusArgs">
+            <summary>
+            Contains the status of the Arduino that gets sent to you
+            when the OnStatusChanged event gets fired.
+            </summary>
+        </member>
+        <member name="T:SLAMBotClasses.ArduinoSlam.SensorInfoArgs">
+            <summary>
+            Contains the sensor information that gets sent to you when
+            the OnSensorInfoReady event is fired.
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -7,6 +7,10 @@ using System.Threading;
 
 namespace SLAMBotClasses
 {
+    /// <summary>
+    /// This class allow you to communicate with the Arduino micro-controller (the blue microchip)
+    /// this will let you control all the electronics on the robot.
+    /// </summary>
     public class ArduinoSlam
     {
         #region Private Members
@@ -29,6 +33,10 @@ namespace SLAMBotClasses
 
         #region Public Members
 
+        /// <summary>
+        /// Contains the status of the Arduino that gets sent to you
+        /// when the OnStatusChanged event gets fired.
+        /// </summary>
         public class StatusArgs : EventArgs
         {
             private ArduinoStatus _Status;
@@ -44,6 +52,10 @@ namespace SLAMBotClasses
             }
         }
 
+        /// <summary>
+        /// Contains the sensor information that gets sent to you when
+        /// the OnSensorInfoReady event is fired.
+        /// </summary>
         public class SensorInfoArgs : EventArgs
         {
             public double XForce, YForce, ZForce, Temperature;
@@ -57,13 +69,25 @@ namespace SLAMBotClasses
             }
         }
 
+        /// <summary>
+        /// Fires when the status of the Arduino micro-controller has changed.
+        /// Lets you know if it is connecting, connected or disconnected.
+        /// </summary>
         public event EventHandler<StatusArgs> OnStatusChanged;
+
+        /// <summary>
+        /// Fires when the Arduino has sent you information. This is for
+        /// reading the accelerometer or temperature sensor.
+        /// </summary>
         public event EventHandler<SensorInfoArgs> OnSensorInfoReady;
 
         #endregion
 
         #region Class Properties
 
+        /// <summary>
+        /// Gets the status of the arduino. Connected, connecting or disconnected.
+        /// </summary>
         public ArduinoStatus Status
         {
             get { return _Status; }
@@ -79,6 +103,9 @@ namespace SLAMBotClasses
 
         #region Constructor
 
+        /// <summary>
+        /// Inits the ArduinoSlam class
+        /// </summary>
         public ArduinoSlam()
         {
             sp = new SerialPort();
@@ -94,12 +121,22 @@ namespace SLAMBotClasses
 
         #region Public Methods
 
+        /// <summary>
+        /// This will connect your computer to the arduino micro-controller which
+        /// will allow the two to communicate. This will scan all the COM ports on
+        /// your computer and automatically find the Arduino. This method is asynchronous
+        /// so you can call it and wait for the OnStatusChanged event to tell you it's connected.
+        /// </summary>
         public void Connect()
         {
             cThread = new Thread(ThreadConnect);
             cThread.Start();
         }
 
+        /// <summary>
+        /// If you are connected to the Arduino this will close the connection. You should
+        /// do this before exiting the program but it's not a big deal if you don't.
+        /// </summary>
         public void CloseConnection()
         {
             if (cThread.IsAlive)
@@ -111,21 +148,38 @@ namespace SLAMBotClasses
             Status = ArduinoStatus.NotConnected;
         }
 
+        /// <summary>
+        /// There is a very small LED on the arduino near pin 13, this turns it off.
+        /// </summary>
         public void TurnTestLightOff()
         {
             SendData(ArduinoCommands.TestLight, 0);
         }
 
+        /// <summary>
+        /// There is a very small LED on the arduino near pin 13, this turns it on.
+        /// </summary>
         public void TurnTestLightOn()
         {
             SendData(ArduinoCommands.TestLight, 1);
         }
 
+        /// <summary>
+        /// This will tell the arduino that you want to have it start or stop sending you
+        /// information about the accelerometer and temperature sensor. This information
+        /// will be sent to you through the OnSensorInfoReady event and will fire about
+        /// every 200 milliseconds.
+        /// </summary>
+        /// <param name="OffOrOn"></param>
         public void SendGForceAndTemp(bool OffOrOn)
         {
             SendData(ArduinoCommands.SendInfo, OffOrOn ? (byte)1 : (byte)0);
         }
 
+        /// <summary>
+        /// Sets the speed of the left side of the robot
+        /// </summary>
+        /// <param name="value">Can be between -1 and 1. -1 is full speed backwards 1 is full speed forward.</param>
         public void SetLeftMotor(double value)
         {
             muMotor.WaitOne();
@@ -133,6 +187,10 @@ namespace SLAMBotClasses
             muMotor.ReleaseMutex();
         }
 
+        /// <summary>
+        /// Sets the speed of the right side of the robot
+        /// </summary>
+        /// <param name="value">Can be between -1 and 1. -1 is full speed backwards 1 is full speed forward.</param>
         public void SetRightMotor(double value)
         {
             muMotor.WaitOne();
