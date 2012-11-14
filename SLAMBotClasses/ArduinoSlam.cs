@@ -17,7 +17,13 @@ namespace SLAMBotClasses
 
         private SerialPort sp;
         private bool gotHandShakeBack;
+        /// <summary>
+        /// This is the command you want the robot to do
+        /// </summary>
         private enum ArduinoCommands { Handshake, TestLight, LeftMotor, RightMotor, XForce, YForce, ZForce, Temp, SendInfo };
+        /// <summary>
+        /// This is the emnu that lets you know the status of the Arduino.
+        /// </summary>
         public enum ArduinoStatus { Connected, NotConnected, Connecting };
         private ArduinoStatus _Status;
         Thread cThread;
@@ -40,12 +46,19 @@ namespace SLAMBotClasses
         public class StatusArgs : EventArgs
         {
             private ArduinoStatus _Status;
+            /// <summary>
+            /// Status of the Arduino.
+            /// </summary>
             public ArduinoStatus Status
             {
                 get { return _Status; }
                 set { _Status = value; }
             }
 
+            /// <summary>
+            /// Constructor for the status args.
+            /// </summary>
+            /// <param name="Status"></param>
             public StatusArgs(ArduinoStatus Status)
             {
                 _Status = Status;
@@ -58,8 +71,18 @@ namespace SLAMBotClasses
         /// </summary>
         public class SensorInfoArgs : EventArgs
         {
+            /// <summary>
+            /// The force is measured in G's the Temperature is in ferinheight.
+            /// </summary>
             public double XForce, YForce, ZForce, Temperature;
 
+            /// <summary>
+            /// Constructor for the SensorInfoArgs.
+            /// </summary>
+            /// <param name="XForce">measured in G's</param>
+            /// <param name="YForce">measured in G's</param>
+            /// <param name="ZForce">measured in G's</param>
+            /// <param name="Temperature">measured in ferinheight</param>
             public SensorInfoArgs (double XForce, double YForce, double ZForce, double Temperature)
             {
                 this.XForce = XForce;

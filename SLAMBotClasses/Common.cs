@@ -6,8 +6,15 @@ using System.Net;
 
 namespace SLAMBotClasses
 {
+    /// <summary>
+    /// Contains general / random methods that are useful
+    /// </summary>
     public class Common
     {
+        /// <summary>
+        /// Gets the internal IP on the computer.
+        /// </summary>
+        /// <returns>IP address as a string</returns>
         public static string GetIP()
         {
             IPHostEntry host;

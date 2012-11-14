@@ -8,6 +8,10 @@ using System.Threading;
 
 namespace SLAMBotClasses
 {
+    /// <summary>
+    /// This class is inherited by TCPSlamClient & TCPSlamServer. It makes it easy to send and
+    /// receive information over a socket using the TCP protocol.
+    /// </summary>
     public abstract class TCPSlamBase
     {
         #region Members

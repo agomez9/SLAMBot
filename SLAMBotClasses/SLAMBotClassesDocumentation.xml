@@ -14,12 +14,47 @@
             A bare bones WAV file header writer
             </summary>        
         </member>
-        <member name="T:SLAMBotClasses.ArduinoSlam">
+        <member name="T:SLAMBotClasses.ControllerSlam">
             <summary>
-            This class allow you to communicate with the Arduino micro-controller (the blue microchip)
-            this will let you control all the electronics on the robot.
+            This is for the XBox remote control. Use this to easily drive the robot.
             </summary>
         </member>
+        <member name="M:SLAMBotClasses.ControllerSlam.#ctor">
+            <summary>
+            Starts up the ControllerSlam class.
+            </summary>
+        </member>
+        <member name="M:SLAMBotClasses.ControllerSlam.ResetControls">
+            <summary>
+            Resets everything to it's defaults. You shouldn't really need to call this.
+            </summary>
+        </member>
+        <member name="E:SLAMBotClasses.ControllerSlam.OnButtonsChanged">
+            <summary>
+            This event gets fired when a button has been pressed on the controller.
+            </summary>
+        </member>
+        <member name="P:SLAMBotClasses.ControllerSlam.LeftStick">
+            <summary>
+            Gets the position of the left thumb stick, value is between -1 and 1
+            </summary>
+        </member>
+        <member name="P:SLAMBotClasses.ControllerSlam.RightStick">
+            <summary>
+            Gets the position of the right thumb stick, value is between -1 and 1
+            </summary>
+        </member>
+        <member name="P:SLAMBotClasses.ControllerSlam.CameraMove">
+            <summary>
+            Gets the position of the right - left trigger which is use to move the Kinect camers.
+            </summary>
+        </member>
+        <member name="T:SLAMBotClasses.ControllerSlam.ButtonArgs">
+            <summary>
+            Arguments returned from the OnButtonsChanged() event.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "T:SLAMBotClasses.ArduinoSlam" -->
         <member name="M:SLAMBotClasses.ArduinoSlam.#ctor">
             <summary>
             Inits the ArduinoSlam class
@@ -87,10 +122,31 @@
             Gets the status of the arduino. Connected, connecting or disconnected.
             </summary>
         </member>
+        <member name="T:SLAMBotClasses.ArduinoSlam.ArduinoCommands">
+            <summary>
+            This is the command you want the robot to do
+            </summary>
+        </member>
+        <member name="T:SLAMBotClasses.ArduinoSlam.ArduinoStatus">
+            <summary>
+            This is the emnu that lets you know the status of the Arduino.
+            </summary>
+        </member>
         <member name="T:SLAMBotClasses.ArduinoSlam.StatusArgs">
             <summary>
             Contains the status of the Arduino that gets sent to you
             when the OnStatusChanged event gets fired.
+            </summary>
+        </member>
+        <member name="M:SLAMBotClasses.ArduinoSlam.StatusArgs.#ctor(SLAMBotClasses.ArduinoSlam.ArduinoStatus)">
+            <summary>
+            Constructor for the status args.
+            </summary>
+            <param name="Status"></param>
+        </member>
+        <member name="P:SLAMBotClasses.ArduinoSlam.StatusArgs.Status">
+            <summary>
+            Status of the Arduino.
             </summary>
         </member>
         <member name="T:SLAMBotClasses.ArduinoSlam.SensorInfoArgs">
@@ -98,6 +154,46 @@
             Contains the sensor information that gets sent to you when
             the OnSensorInfoReady event is fired.
             </summary>
+        </member>
+        <member name="F:SLAMBotClasses.ArduinoSlam.SensorInfoArgs.XForce">
+            <summary>
+            The force is measured in G's the Temperature is in ferinheight.
+            </summary>
+        </member>
+        <member name="F:SLAMBotClasses.ArduinoSlam.SensorInfoArgs.YForce">
+            <summary>
+            The force is measured in G's the Temperature is in ferinheight.
+            </summary>
+        </member>
+        <member name="F:SLAMBotClasses.ArduinoSlam.SensorInfoArgs.ZForce">
+            <summary>
+            The force is measured in G's the Temperature is in ferinheight.
+            </summary>
+        </member>
+        <member name="F:SLAMBotClasses.ArduinoSlam.SensorInfoArgs.Temperature">
+            <summary>
+            The force is measured in G's the Temperature is in ferinheight.
+            </summary>
+        </member>
+        <member name="M:SLAMBotClasses.ArduinoSlam.SensorInfoArgs.#ctor(System.Double,System.Double,System.Double,System.Double)">
+            <summary>
+            Constructor for the SensorInfoArgs.
+            </summary>
+            <param name="XForce">easured in G's</param>
+            <param name="YForce">easured in G's</param>
+            <param name="ZForce">easured in G's</param>
+            <param name="Temperature">easured in ferinheight</param>
+        </member>
+        <member name="T:SLAMBotClasses.Common">
+            <summary>
+            Contains general / random methods that are useful
+            </summary>
+        </member>
+        <member name="M:SLAMBotClasses.Common.GetIP">
+            <summary>
+            Gets the internal IP on the computer.
+            </summary>
+            <returns>IP address as a string</returns>
         </member>
     </members>
 </doc>

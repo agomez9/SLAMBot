@@ -74,6 +74,10 @@ namespace SLAMBotClasses
 
         #region Properties
 
+        /// <summary>
+        /// Get is sets the Quality of the JPEG returned from GetCurrentFrame() don't remember what the
+        /// range is, just mess around with it until it crashes.
+        /// </summary>
         public long FrameQuality
         {
             get
@@ -92,7 +96,7 @@ namespace SLAMBotClasses
         #region Constructor
 
         /// <summary>
-        /// Use the /// on each method and property, or atleast the public ones
+        /// Starts the KinectSlam class
         /// </summary>
         public KinectSlam()
         {            
@@ -103,6 +107,10 @@ namespace SLAMBotClasses
 
         #region Public Methods
     
+        /// <summary>
+        /// Gets a list of KinectSensors connected to the computer.
+        /// </summary>
+        /// <returns>A List of the connected Kinects.</returns>
         public List<KinectSensor> GetKinectList()
         {
             List<KinectSensor> sensors = new List<KinectSensor>();
@@ -112,16 +120,28 @@ namespace SLAMBotClasses
             return sensors; 
         }
 
+        /// <summary>
+        /// Gets a JPEG of the most current frame.
+        /// </summary>
+        /// <returns>A JPEG that is in a byte array, good for sending over a network.</returns>
         public byte[] GetCurrentFrame()
         {
             return CurrentFrame;
         }
 
+        /// <summary>
+        /// Gets the current frame number. Useful to know if you have already seen this frame.
+        /// </summary>
+        /// <returns>Current frame number</returns>
         public int GetCurrentFrameNumber()
         {
             return CurrentFrameNumber;
         }
 
+        /// <summary>
+        /// Starts a kinect, need to call this before using a Kinect. Most likely you will only have one Kinect hooked up.
+        /// </summary>
+        /// <param name="sensor">Pass in which Kinect you want to start. Use GetKinectList() to decide which Kinect to use.</param>
         public void StartSensor(KinectSensor sensor)
         {
             StopSensor();
@@ -151,6 +171,9 @@ namespace SLAMBotClasses
             processCameraMoveThread.Start();
         }
 
+        /// <summary>
+        /// Stops the Kinect that is currently running.
+        /// </summary>
         public void StopSensor()
         {
             if (kinectSensor != null)
@@ -170,6 +193,10 @@ namespace SLAMBotClasses
             }
         }
 
+        /// <summary>
+        /// Change the camera angle.
+        /// </summary>
+        /// <param name="angle">I think it can take between -28 and 28</param>
         public void MoveCamera(int angle)
         {
             cameraAngle = angle;

@@ -7,26 +7,31 @@ using Microsoft.Xna.Framework.Input;
 
 namespace SLAMBotClasses
 {
+    /// <summary>
+    /// This is for the XBox remote control. Use this to easily drive the robot.
+    /// </summary>
     public class ControllerSlam
     {
         #region Members
-
+        /// <summary>
+        /// This event gets fired when a button has been pressed on the controller.
+        /// </summary>
         public event EventHandler<ButtonArgs> OnButtonsChanged;
-        public enum LightMode { AllOff, AllOn, Blink, Circle };
         private Thread processControlsThread;
         private double _LeftStick;
         private double _RightStick;
         private double LastLeftStick;
         private double LastRightStick;
         private DateTime lastStickSend;
-        private LightMode _Lights;
-        private LightMode LastLights;
         private float _CameraMove;              
 
         #endregion
 
         #region Properties
 
+        /// <summary>
+        /// Gets the position of the left thumb stick, value is between -1 and 1
+        /// </summary>
         public double LeftStick
         {
             get
@@ -35,6 +40,9 @@ namespace SLAMBotClasses
             }
         }
 
+        /// <summary>
+        /// Gets the position of the right thumb stick, value is between -1 and 1
+        /// </summary>
         public double RightStick
         {
             get
@@ -43,14 +51,9 @@ namespace SLAMBotClasses
             }
         }
 
-        public LightMode Lights
-        {
-            get
-            {
-                return _Lights;
-            }
-        }
-
+        /// <summary>
+        /// Gets the position of the right - left trigger which is use to move the Kinect camers.
+        /// </summary>
         public float CameraMove
         {
             get
@@ -63,14 +66,20 @@ namespace SLAMBotClasses
 
         #region Helper Classes
 
+        /// <summary>
+        /// Arguments returned from the OnButtonsChanged() event.
+        /// </summary>
         public class ButtonArgs : EventArgs
         {
+            //Position of the left stick.
             public double LeftStick;
+            //If the left stick has changed.
             public bool LeftStickChanged;
+            //Position of the right stick.
             public double RightStick;
+            //If the right stick has changed.
             public bool RightStickChanged;
-            public LightMode Lights;
-            public bool LightsChanged;
+            //How much to move the camers.
             public float CameraMove;
         }
 
@@ -78,6 +87,9 @@ namespace SLAMBotClasses
 
         #region Constructor
 
+        /// <summary>
+        /// Starts up the ControllerSlam class.
+        /// </summary>
         public ControllerSlam()
         {
             ResetControls();
@@ -89,11 +101,13 @@ namespace SLAMBotClasses
 
         #region Public Methods
 
+        /// <summary>
+        /// Resets everything to it's defaults. You shouldn't really need to call this.
+        /// </summary>
         public void ResetControls()
         {
             _LeftStick = LastLeftStick = 0;
             _RightStick = LastRightStick = 0;
-            _Lights = LastLights = LightMode.AllOff;
             _CameraMove = 0;
             lastStickSend = DateTime.Now;
         }
@@ -109,16 +123,7 @@ namespace SLAMBotClasses
                 if (GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One).IsConnected)
                 {
                     _LeftStick = GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One).ThumbSticks.Left.Y;
-                    _RightStick = GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One).ThumbSticks.Right.Y;
-                    if (GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One).DPad.Down == ButtonState.Pressed)
-                        _Lights = LightMode.AllOff;
-                    else if (GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One).DPad.Up == ButtonState.Pressed)
-                        _Lights = LightMode.AllOn;
-                    else if (GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One).DPad.Left == ButtonState.Pressed)
-                        _Lights = LightMode.Blink;
-                    else if (GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One).DPad.Right == ButtonState.Pressed)
-                        _Lights = LightMode.Circle;
-                    
+                    _RightStick = GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One).ThumbSticks.Right.Y;                                        
                     _CameraMove = -GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One).Triggers.Left + GamePad.GetState(Microsoft.Xna.Framework.PlayerIndex.One).Triggers.Right;
 
                     TestControls();
@@ -129,15 +134,8 @@ namespace SLAMBotClasses
 
         private void TestControls()
         {
-            bool SendLights = false;
             bool SendLeftStick = false;
             bool SendRightStick = false;            
-
-            if (_Lights != LastLights)
-            {
-                LastLights = _Lights;
-                SendLights = true;
-            }
 
             if ((DateTime.Now - lastStickSend).TotalMilliseconds >= 50)
             {
@@ -162,8 +160,6 @@ namespace SLAMBotClasses
                 args.LeftStickChanged = SendLeftStick;
                 args.RightStick = _RightStick;
                 args.RightStickChanged = SendRightStick;
-                args.Lights = _Lights;
-                args.LightsChanged = SendLights;
                 args.CameraMove = _CameraMove;
                 OnButtonsChanged(this, args);
             }
