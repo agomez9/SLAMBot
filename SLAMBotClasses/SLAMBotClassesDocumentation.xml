@@ -6,13 +6,54 @@
     <members>
         <member name="M:SLAMBotClasses.KinectSlam.#ctor">
             <summary>
-            Use the /// on each method and property, or atleast the public ones
+            Starts the KinectSlam class
             </summary>
+        </member>
+        <member name="M:SLAMBotClasses.KinectSlam.GetKinectList">
+            <summary>
+            Gets a list of KinectSensors connected to the computer.
+            </summary>
+            <returns>A List of the connected Kinects.</returns>
+        </member>
+        <member name="M:SLAMBotClasses.KinectSlam.GetCurrentFrame">
+            <summary>
+            Gets a JPEG of the most current frame.
+            </summary>
+            <returns>A JPEG that is in a byte array, good for sending over a network.</returns>
+        </member>
+        <member name="M:SLAMBotClasses.KinectSlam.GetCurrentFrameNumber">
+            <summary>
+            Gets the current frame number. Useful to know if you have already seen this frame.
+            </summary>
+            <returns>Current frame number</returns>
+        </member>
+        <member name="M:SLAMBotClasses.KinectSlam.StartSensor(Microsoft.Kinect.KinectSensor)">
+            <summary>
+            Starts a kinect, need to call this before using a Kinect. Most likely you will only have one Kinect hooked up.
+            </summary>
+            <param name="sensor">Pass in which Kinect you want to start. Use GetKinectList() to decide which Kinect to use.</param>
+        </member>
+        <member name="M:SLAMBotClasses.KinectSlam.StopSensor">
+            <summary>
+            Stops the Kinect that is currently running.
+            </summary>
+        </member>
+        <member name="M:SLAMBotClasses.KinectSlam.MoveCamera(System.Int32)">
+            <summary>
+            Change the camera angle.
+            </summary>
+            <param name="angle">I think it can take between -28 and 28</param>
         </member>
         <member name="M:SLAMBotClasses.KinectSlam.WriteWavHeader(System.IO.Stream)">
             <summary>
             A bare bones WAV file header writer
             </summary>        
+        </member>
+        <member name="P:SLAMBotClasses.KinectSlam.FrameQuality">
+            <summary>
+            Get is sets the Quality of the JPEG returned from GetCurrentFrame() don't remember what the
+            range is, just mess around with it until it crashes.
+            </summary>
         </member>
         <member name="T:SLAMBotClasses.ControllerSlam">
             <summary>
@@ -54,7 +95,12 @@
             Arguments returned from the OnButtonsChanged() event.
             </summary>
         </member>
-        <!-- Badly formed XML comment ignored for member "T:SLAMBotClasses.ArduinoSlam" -->
+        <member name="T:SLAMBotClasses.ArduinoSlam">
+            <summary>
+            This class allow you to communicate with the Arduino micro-controller (the blue microchip)
+            this will let you control all the electronics on the robot.
+            </summary>
+        </member>
         <member name="M:SLAMBotClasses.ArduinoSlam.#ctor">
             <summary>
             Inits the ArduinoSlam class
@@ -179,11 +225,12 @@
             <summary>
             Constructor for the SensorInfoArgs.
             </summary>
-            <param name="XForce">easured in G's</param>
-            <param name="YForce">easured in G's</param>
-            <param name="ZForce">easured in G's</param>
-            <param name="Temperature">easured in ferinheight</param>
+            <param name="XForce">measured in G's</param>
+            <param name="YForce">measured in G's</param>
+            <param name="ZForce">measured in G's</param>
+            <param name="Temperature">measured in ferinheight</param>
         </member>
+        <!-- Badly formed XML comment ignored for member "T:SLAMBotClasses.TCPSlamBase" -->
         <member name="T:SLAMBotClasses.Common">
             <summary>
             Contains general / random methods that are useful

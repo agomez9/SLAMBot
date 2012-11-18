@@ -114,9 +114,9 @@ namespace SLAMBotClasses
         public List<KinectSensor> GetKinectList()
         {
             List<KinectSensor> sensors = new List<KinectSensor>();
-            foreach (KinectSensor kinect in KinectSensor.KinectSensors)            
-                if (kinect.Status == KinectStatus.Connected)                
-                    sensors.Add(kinect);
+            //foreach (KinectSensor kinect in KinectSensor.KinectSensors)            
+            //    if (kinect.Status == KinectStatus.Connected)                
+            //        sensors.Add(kinect);
             return sensors; 
         }
 

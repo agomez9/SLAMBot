@@ -206,7 +206,7 @@ namespace SLAMBotClasses
         public void SetLeftMotor(double value)
         {
             muMotor.WaitOne();
-            leftMotorValue = value;
+            leftMotorValue = -value;
             muMotor.ReleaseMutex();
         }
 
@@ -217,7 +217,7 @@ namespace SLAMBotClasses
         public void SetRightMotor(double value)
         {
             muMotor.WaitOne();
-            rightMotorValue = value;
+            rightMotorValue = -value;
             muMotor.ReleaseMutex();
         }
 
@@ -253,11 +253,11 @@ namespace SLAMBotClasses
                             realLeftMotorValue += 0.1;
                     }
 
-                    double leftMotorSpeed = (64 + (64 * realLeftMotorValue));
-                    if (leftMotorSpeed < 1)
-                        leftMotorSpeed = 1;
-                    else if (leftMotorSpeed > 127)
-                        leftMotorSpeed = 127;
+                    double leftMotorSpeed = (192 + (64 * realLeftMotorValue));
+                    if (leftMotorSpeed < 128)
+                        leftMotorSpeed = 128;
+                    else if (leftMotorSpeed > 255)
+                        leftMotorSpeed = 255;
                     SendData(ArduinoCommands.LeftMotor, (byte)leftMotorSpeed);
                 }
 
@@ -282,17 +282,17 @@ namespace SLAMBotClasses
                             realRightMotorValue += 0.1;
                     }
 
-                    double rightMotorSpeed = (192 + (64 * realRightMotorValue));
-                    if (rightMotorSpeed < 128)
-                        rightMotorSpeed = 128;
-                    else if (rightMotorSpeed > 255)
-                        rightMotorSpeed = 255;
+                    double rightMotorSpeed = (64 + (64 * realRightMotorValue));
+                    if (rightMotorSpeed < 1)
+                        rightMotorSpeed = 1;
+                    else if (rightMotorSpeed > 127)
+                        rightMotorSpeed = 127;
                     SendData(ArduinoCommands.RightMotor, (byte)rightMotorSpeed);
                 }
 
                 muMotor.ReleaseMutex();
 
-                Thread.Sleep(100);
+                Thread.Sleep(50);
             }
         }
 
