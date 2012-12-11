@@ -4,6 +4,18 @@
         <name>SLAMBotClasses</name>
     </assembly>
     <members>
+        <!-- Badly formed XML comment ignored for member "T:SLAMBotClasses.TCPSlamBase" -->
+        <member name="T:SLAMBotClasses.Common">
+            <summary>
+            Contains general / random methods that are useful
+            </summary>
+        </member>
+        <member name="M:SLAMBotClasses.Common.GetIP">
+            <summary>
+            Gets the internal IP on the computer.
+            </summary>
+            <returns>IP address as a string</returns>
+        </member>
         <member name="M:SLAMBotClasses.KinectSlam.#ctor">
             <summary>
             Starts the KinectSlam class
@@ -229,18 +241,6 @@
             <param name="YForce">measured in G's</param>
             <param name="ZForce">measured in G's</param>
             <param name="Temperature">measured in ferinheight</param>
-        </member>
-        <!-- Badly formed XML comment ignored for member "T:SLAMBotClasses.TCPSlamBase" -->
-        <member name="T:SLAMBotClasses.Common">
-            <summary>
-            Contains general / random methods that are useful
-            </summary>
-        </member>
-        <member name="M:SLAMBotClasses.Common.GetIP">
-            <summary>
-            Gets the internal IP on the computer.
-            </summary>
-            <returns>IP address as a string</returns>
         </member>
     </members>
 </doc>

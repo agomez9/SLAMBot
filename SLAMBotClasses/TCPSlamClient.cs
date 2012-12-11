@@ -21,6 +21,9 @@ namespace SLAMBotClasses
 
         #region Properties
 
+        /// <summary>
+        /// Gets the current status of the connection.
+        /// </summary>
         public ClientStatus Status
         {
             get { return _Status; }
@@ -60,6 +63,9 @@ namespace SLAMBotClasses
 
         #region Public Methods
 
+        /// <summary>
+        /// Connects to the server, make sure you have set the IP and Port if using this method
+        /// </summary>
         public void Connect()
         {
             //check that the ip and port has been set
@@ -75,6 +81,11 @@ namespace SLAMBotClasses
             }
         }
 
+        /// <summary>
+        /// Connects to the server
+        /// </summary>
+        /// <param name="IPAddress">IP of the server</param>
+        /// <param name="Port">Port of the server</param>
         public void Connect(IPAddress IPAddress, int Port)
         {
             _IPAddress = IPAddress;
@@ -82,6 +93,9 @@ namespace SLAMBotClasses
             Connect();
         }
 
+        /// <summary>
+        /// Disconnects from the server
+        /// </summary>
         public override void CloseConnection()
         {
             base.CloseConnection();

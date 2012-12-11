@@ -22,6 +22,9 @@ namespace SLAMBotClasses
 
         #region Properties
 
+        /// <summary>
+        /// Gets the current status of the connection
+        /// </summary>
         public ServerStatus Status
         {
             get { return _Status; }
@@ -61,6 +64,9 @@ namespace SLAMBotClasses
 
         #region Public Methods
 
+        /// <summary>
+        /// Starts the server, make sure you have the IP and port set if using this method.
+        /// </summary>
         public void StartServer()
         {
             //check that the ip and port has been set
@@ -79,6 +85,11 @@ namespace SLAMBotClasses
             }
         }
 
+        /// <summary>
+        /// Starts the server
+        /// </summary>
+        /// <param name="IPAddress">IP of the server, 127.0.0.1 is good for testing on local machine</param>
+        /// <param name="Port">Port of the server</param>
         public void StartServer(IPAddress IPAddress, int Port)
         {
             _IPAddress = IPAddress;
@@ -86,6 +97,9 @@ namespace SLAMBotClasses
             StartServer();
         }
 
+        /// <summary>
+        /// Closes the connection
+        /// </summary>
         public override void CloseConnection()
         {
             base.CloseConnection();             
